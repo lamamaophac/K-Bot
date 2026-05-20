@@ -669,6 +669,138 @@ async def taixiu(ctx, choice, amount: int):
     )
 
 # =========================
+# 🌍 AUTO EVENTS SYSTEM
+# =========================
+
+EVENTS = [
+    {
+        "name": "🛢️ OIL CRISIS",
+        "text": "🛢️ Giá dầu tăng mạnh!\n💰 Tất cả oil rig +2000 Kpts",
+        "type": "oil"
+    },
+
+    {
+        "name": "☪️ RAMADAN",
+        "text": "☪️ Ramadan Mubarak!\n💰 Tất cả nhận 5000 Kpts",
+        "type": "money"
+    },
+
+    {
+        "name": "💥 NUCLEAR WAR",
+        "text": "💥 Chiến tranh hạt nhân!\n⚔️ Mọi người mất 10% quân lực",
+        "type": "army"
+    },
+
+    {
+        "name": "🎁 JACKPOT RAIN",
+        "text": "🎁 Mưa tiền từ casino!\n💰 Tất cả nhận random Kpts",
+        "type": "jackpot"
+    },
+
+    {
+        "name": "🐪 DESERT FESTIVAL",
+        "text": "🐪 Lễ hội sa mạc!\n💰 Đua lạc đà x3 tiền thưởng",
+        "type": "camel"
+    }
+]
+
+# =========================
+# ⏰ AUTO EVENT LOOP
+# =========================
+
+@tasks.loop(minutes=30)
+async def auto_events():
+
+    await bot.wait_until_ready()
+
+    # =========================
+    # RANDOM EVENT
+    # =========================
+
+    event = random.choice(EVENTS)
+
+    # =========================
+    # APPLY EVENT
+    # =========================
+
+    if event["type"] == "money":
+
+        for p in players.values():
+
+            p["money"] += 5000
+
+    elif event["type"] == "army":
+
+        for p in players.values():
+
+            loss = int(p["army_power"] * 0.1)
+
+            p["army_power"] -= loss
+
+    elif event["type"] == "oil":
+
+        for p in players.values():
+
+            oilrigs = p.get("oilrig",0)
+
+            if oilrigs > 0:
+
+                p["money"] += oilrigs * 2000
+
+    elif event["type"] == "jackpot":
+
+        for p in players.values():
+
+            p["money"] += random.randint(1000,10000)
+
+    elif event["type"] == "camel":
+
+        global camel_bonus
+
+        camel_bonus = 3
+
+    save_data()
+
+    # =========================
+    # SEND EVENT
+    # =========================
+
+    for guild in bot.guilds:
+
+        for channel in guild.text_channels:
+
+            try:
+
+                await channel.send(
+                    f"""
+🌍 EVENT TOÀN SERVER
+
+{event['text']}
+"""
+                )
+
+                break
+
+            except:
+
+                pass
+
+# =========================
+# READY
+# =========================
+
+@bot.event
+async def on_ready():
+
+    load_data()
+
+    if not auto_events.is_running():
+
+        auto_events.start()
+
+    print(f"✅ BOT ONLINE: {bot.user}")
+    
+# =========================
 # ROULETTE
 # !roulette red/black số_tiền
 # =========================
@@ -1052,8 +1184,9 @@ vi du: !buy haucan trungdoan
 !thanhduong
 !caliphate
 
-LOTTERY SERVER ( Quay so sever )
-!lottery
+Sự kiện sever 
+!lottery (mua vé số sever)
+Một số event mỗi 30P như: Oil crisis, Ramadan, Nuclear war, Jackpot rain, Desert Festival. Đặc biệt là KhungBo.
 
 😴 AFK
 !afk <lý do>
@@ -1065,6 +1198,97 @@ use: !adminhelp
 !nh <nội dung>
 """)
 
+# =========================
+# ☢️ KHUNG BO EVENT
+# =========================
+
+zone_active = False
+zone_multiplier = 1
+
+# =========================
+# ⏰ KHUNG BO
+# =========================
+
+@tasks.loop(minutes=45)
+async def khungbo_event():
+
+    global zone_active
+    global zone_multiplier
+
+    await bot.wait_until_ready()
+
+    # =========================
+    # START EVENT
+    # =========================
+
+    zone_active = True
+
+    # random giá tăng
+    zone_multiplier = random.randint(2,5)
+
+    msg = f"""
+☢️ KHỦNG HOẢNG KHUNG BO ☢️
+
+💥 Chiến tranh và hỗn loạn xảy ra!
+
+📈 Giá:
+🛢️ Dầu mỏ x{zone_multiplier}
+🎰 Casino x{zone_multiplier}
+📦 Box x{zone_multiplier}
+
+⏰ Thời gian:
+15 phút
+"""
+
+    # =========================
+    # SEND ALL SERVER
+    # =========================
+
+    for guild in bot.guilds:
+
+        for channel in guild.text_channels:
+
+            try:
+
+                await channel.send(msg)
+
+                break
+
+            except:
+                pass
+
+    # =========================
+    # EVENT TIME
+    # =========================
+
+    await asyncio.sleep(900)
+
+    # =========================
+    # END EVENT
+    # =========================
+
+    zone_active = False
+    zone_multiplier = 1
+
+    for guild in bot.guilds:
+
+        for channel in guild.text_channels:
+
+            try:
+
+                await channel.send(
+                    """
+☢️ KHUNG BO ĐÃ KẾT THÚC
+
+📉 Giá cả đã trở lại bình thường 😭
+"""
+                )
+
+                break
+
+            except:
+                pass
+                
 # =========================
 # ADMIN SECURITY SYSTEM
 # !dongbang @user
