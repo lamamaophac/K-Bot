@@ -1185,8 +1185,8 @@ vi du: !buy haucan trungdoan
 !caliphate
 
 Sự kiện sever 
-!lottery (mua vé số sever)
-Một số event mỗi 30P như: Oil crisis, Ramadan, Nuclear war, Jackpot rain, Desert Festival. Đặc biệt là KhungBo.
+!lottery
+# Và sẽ có mỗi event bất ngờ mỗi 30P ^^
 
 😴 AFK
 !afk <lý do>
